@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lernkarten Schule</title>
+<meta name="theme-color" content="#E9EDF3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1424" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lernkarten">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&display=swap">
+<style>
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
+
+/* Layout: one-column phone app. Index-card surface on a cool desk; ink-blue type, marker-yellow highlight. */
+:root{
+  --desk:#E9EDF3; --card:#FFFFFF; --ink:#16233F; --muted:#5A6680; --rule:#D5DCE8;
+  --accent:#2747C9; --accent-ink:#FFFFFF; --mark:#FFE07A;
+  --ok:#1E8A55; --ok-bg:#E3F5EB; --bad:#C2363B; --bad-bg:#FBE6E6;
+  --shadow:0 1px 0 rgba(22,35,63,.06),0 8px 24px rgba(22,35,63,.08);
+  --f-ui:"Figtree",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
+  --f-card:"Literata",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --desk:#0E1424; --card:#18213A; --ink:#E7ECF7; --muted:#9AA6C2; --rule:#2A3555;
+  --accent:#7D95FF; --accent-ink:#0E1424; --mark:#6B5A12;
+  --ok:#5BD397; --ok-bg:#163527; --bad:#FF8A8E; --bad-bg:#3A1C22;
+  --shadow:0 8px 24px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --desk:#0E1424; --card:#18213A; --ink:#E7ECF7; --muted:#9AA6C2; --rule:#2A3555;
+  --accent:#7D95FF; --accent-ink:#0E1424; --mark:#6B5A12;
+  --ok:#5BD397; --ok-bg:#163527; --bad:#FF8A8E; --bad-bg:#3A1C22;
+  --shadow:0 8px 24px rgba(0,0,0,.35); color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--desk);color:var(--ink);font-family:var(--f-ui);font-size:16px;line-height:1.55;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--desk)}
+.app{max-width:560px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 24px;box-sizing:border-box}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:10px}
+.fa{direction:ltr;text-align:left}
+.de{direction:ltr;text-align:left;font-family:var(--f-card)}
+
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--desk);display:flex;align-items:center;gap:10px;padding-block:8px;direction:ltr}
+.bar h1{font-size:1.15rem;font-weight:800;margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iconbtn{width:42px;height:42px;border-radius:12px;background:var(--card);box-shadow:var(--shadow);display:grid;place-items:center;font-size:1.25rem;flex:none}
+select{font:inherit;font-size:.95rem;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:12px;padding:8px 10px;max-width:100%}
+
+/* home */
+.hero{direction:ltr;display:grid;gap:4px;padding-block:8px 14px}
+.hero .sub{color:var(--muted);font-size:.9rem}
+.hero .lt{font-family:var(--f-card);direction:ltr;text-align:left;font-size:1.5rem;font-weight:700;line-height:1.25;text-wrap:balance}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--card);padding:5px;border-radius:14px;box-shadow:var(--shadow);direction:ltr}
+.tabs button{padding:10px;border-radius:10px;font-weight:600;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.list{display:grid;gap:10px;margin-top:14px}
+.row{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:14px;box-shadow:var(--shadow);text-align:left;direction:ltr;width:100%;box-sizing:border-box}
+.row .num{font-family:var(--f-card);font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;min-width:2.6em}
+.row .t{flex:1;min-width:0;font-family:var(--f-card);font-weight:600;line-height:1.3}
+.row .meta{font-size:.8rem;color:var(--muted);white-space:nowrap}
+.row.all{background:var(--accent);color:var(--accent-ink)}
+.row.all .num,.row.all .meta{color:inherit;opacity:.9}
+.mini{height:4px;border-radius:4px;background:var(--rule);margin-top:6px;overflow:hidden}
+.mini i{display:block;height:100%;background:var(--ok)}
+.foot{margin-top:18px;color:var(--muted);font-size:.8rem;text-align:center}
+.foot button{text-decoration:underline;color:var(--muted)}
+
+/* card */
+.prog{height:6px;border-radius:6px;background:var(--rule);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.count{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.85rem;direction:ltr;text-align:center;margin-top:6px}
+.stage{flex:1;display:flex;flex-direction:column;justify-content:flex-start;padding-block:12px;touch-action:pan-y}
+.kcard{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:22px 20px 24px;position:relative;overflow:hidden;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 31px,var(--rule) 31px,var(--rule) 32px);background-position:0 70px;background-size:100% 32px;background-repeat:repeat-y}
+.kcard::before{content:"";position:absolute;top:0;bottom:0;left:34px;width:1px;background:var(--bad);opacity:.25}
+.kcard .sec{font-family:var(--f-ui);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px 24px;direction:ltr}
+.kcard h2{font-family:var(--f-card);font-size:1.35rem;line-height:1.3;margin:0 0 14px 24px;text-wrap:balance}
+.kcard h2 span{background:linear-gradient(transparent 58%,var(--mark) 58%);padding:0 2px}
+.kbody{margin-left:24px;font-family:var(--f-card);font-size:1.02rem;line-height:2rem}
+.kbody p{margin:0 0 .4rem}
+.kbody ul{margin:0;padding-left:1.1em}
+.kbody li{margin:0}
+.kbody b{font-weight:700}
+.kbody table{border-collapse:collapse;font-size:.88rem;line-height:1.35;width:100%;background:var(--card)}
+.kbody td,.kbody th{border:1px solid var(--rule);padding:5px 6px;text-align:left;vertical-align:top}
+.tw{overflow-x:auto}
+.kbody .q{font-style:italic;color:var(--muted)}
+.nav{display:grid;grid-template-columns:1fr 2fr;gap:10px;padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav #nx{order:2}
+.btn{padding:15px 12px;border-radius:14px;font-weight:700;font-size:1.05rem;text-align:center}
+.btn.pri{background:var(--accent);color:var(--accent-ink)}
+.btn.sec{background:var(--card);box-shadow:var(--shadow)}
+.btn[disabled]{opacity:.4}
+.hint{color:var(--muted);font-size:.78rem;text-align:center;margin-top:8px}
+@media (prefers-reduced-motion:no-preference){.kcard.in{animation:slide .22s ease-out}.kcard.inb{animation:slideb .22s ease-out}}
+@keyframes slide{from{transform:translateX(24px);opacity:.3}to{transform:none;opacity:1}}
+@keyframes slideb{from{transform:translateX(-24px);opacity:.3}to{transform:none;opacity:1}}
+
+/* quiz */
+.qcard{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:20px}
+.qcard .qq{font-family:var(--f-card);font-size:1.15rem;font-weight:600;line-height:1.4;margin:0 0 14px;direction:ltr;text-align:left}
+.opts{display:grid;gap:8px}
+.opt{border:1.5px solid var(--rule);border-radius:12px;padding:12px 14px;text-align:left;direction:ltr;font-family:var(--f-card);font-size:1rem;line-height:1.35;display:flex;gap:10px;align-items:flex-start;background:var(--card)}
+.opt .l{font-weight:700;color:var(--muted);flex:none}
+.opt.ok{border-color:var(--ok);background:var(--ok-bg)}
+.opt.ok .l{color:var(--ok)}
+.opt.bad{border-color:var(--bad);background:var(--bad-bg)}
+.opt.bad .l{color:var(--bad)}
+.exp{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--desk);font-family:var(--f-card);direction:ltr;text-align:left;font-size:.95rem;line-height:1.5}
+.exp .tag{font-family:var(--f-ui);font-weight:800;display:block;margin-bottom:4px}
+.exp .tag.ok{color:var(--ok)} .exp .tag.bad{color:var(--bad)}
+.score{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:28px 20px;text-align:center;display:grid;gap:10px}
+.score .big{font-size:3rem;font-weight:800;font-variant-numeric:tabular-nums;direction:ltr;color:var(--accent);line-height:1}
+.score .actions{display:grid;gap:8px;margin-top:8px}
+.done{display:grid;gap:10px;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script src="lessons.js"></script>
+<script>
+const LESSONS = window.LESSONS;
+/* ================= App ================= */
+const $app=document.getElementById('app');
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let st={lesson:store.get('lk_lesson',LESSONS[0].id),tab:'cards',view:'home'};
+let seen=store.get('lk_seen',{}); // key lesson|secIdx -> max index seen+1
+let best=store.get('lk_best',{});
+const L=()=>LESSONS.find(l=>l.id===st.lesson)||LESSONS[0];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fa=n=>String(n);
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+window.scrollTo(0,0);
+
+function home(){
+  st.view='home';
+  const l=L();
+  const total=l.sections.reduce((n,s)=>n+s.cards.length,0);
+  const qtotal=l.sections.reduce((n,s)=>n+s.quiz.length,0);
+  const picker=LESSONS.length>1?`<select id="lessonSel" aria-label="Lektion">${LESSONS.map(x=>`<option value="${x.id}" ${x.id===l.id?'selected':''}>${esc(x.fach)} · ${esc(x.titel)}</option>`).join('')}</select>`:'';
+  const rows=l.sections.map((s,i)=>{
+    if(st.tab==='cards'){
+      const k=l.id+'|'+i, sn=Math.min(seen[k]||0,s.cards.length), pct=Math.round(sn/s.cards.length*100);
+      return `<button class="row" data-sec="${i}"><span class="num">${esc(s.nr)}</span><span class="t">${esc(s.titel)}<div class="mini"><i style="width:${pct}%"></i></div></span><span class="meta">${fa(s.cards.length)} Karten</span></button>`;
+    }else{
+      const b=best[l.id+'|'+i];
+      return `<button class="row" data-sec="${i}"><span class="num">${esc(s.nr)}</span><span class="t">${esc(s.titel)}</span><span class="meta">${b!=null?'Bestwert: '+fa(b)+'/'+fa(s.quiz.length):fa(s.quiz.length)+' Fragen'}</span></button>`;
+    }
+  }).join('');
+  const all=st.tab==='cards'
+    ?`<button class="row all" data-sec="all"><span class="num">∑</span><span class="t">Alle Karten</span><span class="meta">${fa(total)} Karten</span></button>`
+    :`<button class="row all" data-sec="all"><span class="num">∑</span><span class="t">Gesamttest (gemischt)</span><span class="meta">${fa(Math.min(20,qtotal))} Fragen</span></button>`;
+  $app.innerHTML=`
+   <div class="hero"><span class="sub">${esc(l.fach)} · Lernkarten zur Prüfungsvorbereitung</span><div class="lt">${esc(l.titel)}</div>${picker}</div>
+   <div class="tabs" role="tablist"><button role="tab" id="tabCards" aria-selected="${st.tab==='cards'}">Karten</button><button role="tab" id="tabQuiz" aria-selected="${st.tab==='quiz'}">Quiz</button></div>
+   <div class="list">${all}${rows}</div>
+   <div class="foot">Quelle: ${esc(l.quelle)}<br><button id="reset">Fortschritt zurücksetzen</button></div>`;
+  document.getElementById('tabCards').onclick=()=>{st.tab='cards';home()};
+  document.getElementById('tabQuiz').onclick=()=>{st.tab='quiz';home()};
+  const sel=document.getElementById('lessonSel'); if(sel) sel.onchange=e=>{st.lesson=e.target.value;store.set('lk_lesson',st.lesson);home()};
+  document.getElementById('reset').onclick=e=>{if(e.target.dataset.c){seen={};best={};store.set('lk_seen',seen);store.set('lk_best',best);home()}else{e.target.dataset.c=1;e.target.textContent='Sicher? Nochmal tippen'}};
+  $app.querySelectorAll('.row').forEach(b=>b.onclick=()=>{const v=b.dataset.sec;st.tab==='cards'?cards(v):quiz(v)});
+}
+
+/* ---- Karten ---- */
+function cards(sec){
+  const l=L();
+  let deck;
+  if(sec==='all') deck=l.sections.flatMap((s,si)=>s.cards.map(c=>({...c,s,si})));
+  else {const si=+sec; deck=l.sections[si].cards.map(c=>({...c,s:l.sections[si],si}));}
+  let i=0, dir=1;
+  function mark(){const c=deck[i];const k=l.id+'|'+c.si;const idx=c.s.cards.indexOf(c.s.cards.find(x=>x.h===c.h))+1;if((seen[k]||0)<idx){seen[k]=idx;store.set('lk_seen',seen)}}
+  function draw(){
+    const c=deck[i], last=i===deck.length-1;
+    mark();
+    const title=sec==='all'?'Alle Karten':c.s.nr+' '+c.s.titel;
+    let next='';
+    if(last){
+      const ns=sec!=='all'&&+sec+1<l.sections.length?+sec+1:null;
+      next=`<div class="done">${ns!=null?`<button class="btn pri" id="nextSec">Nächster Abschnitt: ${esc(l.sections[ns].nr)} →</button>`:''}<button class="btn sec" id="toQuiz">Quiz zu diesem Abschnitt</button></div>`;
+    }
+    $app.innerHTML=`
+     <div class="bar"><button class="iconbtn" id="back" aria-label="Zurück">←</button><h1 class="de" style="direction:ltr;text-align:left">${esc(title)}</h1></div>
+     <div class="prog"><i style="width:${(i+1)/deck.length*100}%"></i></div>
+     <div class="count">${i+1} / ${deck.length}</div>
+     <div class="stage" id="stage">
+       <article class="kcard ${dir>0?'in':'inb'}"><div class="sec">${esc(c.s.nr)} · ${esc(c.s.titel)}</div><h2><span>${esc(c.h)}</span></h2><div class="kbody">${c.b}</div></article>
+       ${next}
+     </div>
+     <div class="nav"><button class="btn pri" id="nx" ${last?'disabled':''}>Weiter →</button><button class="btn sec" id="pv" ${i===0?'disabled':''}>← Zurück</button></div>
+     <div class="hint">Wische die Karte nach links oder rechts</div>`;
+    document.getElementById('back').onclick=home;
+    document.getElementById('nx').onclick=()=>go(1);
+    document.getElementById('pv').onclick=()=>go(-1);
+    const ns=document.getElementById('nextSec'); if(ns) ns.onclick=()=>cards(String(+sec+1));
+    const tq=document.getElementById('toQuiz'); if(tq) tq.onclick=()=>{st.tab='quiz';quiz(sec)};
+    swipe(document.getElementById('stage'));
+    window.scrollTo(0,0);
+  }
+  function go(d){const n=i+d;if(n<0||n>=deck.length)return;dir=d;i=n;draw()}
+  function swipe(el){let x0=null,y0=null;el.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY},{passive:true});el.addEventListener('touchend',e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5)go(dx<0?1:-1);x0=null},{passive:true})}
+  document.onkeydown=e=>{if(st.view!=='cards')return;if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1)};
+  st.view='cards'; draw();
+}
+
+/* ---- Quiz ---- */
+function quiz(sec,pool){
+  const l=L();
+  let qs;
+  if(pool) qs=shuffle(pool);
+  else if(sec==='all') qs=shuffle(l.sections.flatMap(s=>s.quiz)).slice(0,20);
+  else qs=shuffle(l.sections[+sec].quiz);
+  qs=qs.map(q=>{const order=shuffle(q.o.map((t,k)=>k));return {...q,o:order.map(k=>q.o[k]),a:order.indexOf(q.a)}});
+  let i=0, right=0, wrong=[], answered=false;
+  st.view='quiz';
+  function draw(){
+    const q=qs[i]; answered=false;
+    const title=sec==='all'?'Gesamttest':l.sections[+sec].nr+' '+l.sections[+sec].titel;
+    $app.innerHTML=`
+     <div class="bar"><button class="iconbtn" id="back" aria-label="Zurück">←</button><h1 style="direction:ltr;text-align:left;font-family:var(--f-card)">${esc(title)}</h1></div>
+     <div class="prog"><i style="width:${i/qs.length*100}%"></i></div>
+     <div class="count">${i+1} / ${qs.length} · ✓ ${right}</div>
+     <div class="stage"><div class="qcard"><p class="qq">${esc(q.q)}</p><div class="opts">${q.o.map((t,k)=>`<button class="opt" data-k="${k}"><span class="l">${'ABCD'[k]}</span><span>${esc(t)}</span></button>`).join('')}</div><div id="exp"></div></div></div>
+     <div class="nav" id="qnav" hidden><button class="btn pri" id="nx">${i===qs.length-1?'Ergebnis':'Nächste Frage →'}</button><button class="btn sec" id="ex">Beenden</button></div>`;
+    document.getElementById('back').onclick=home;
+    $app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(+b.dataset.k));
+    window.scrollTo(0,0);
+  }
+  function pick(k){
+    if(answered)return; answered=true;
+    const q=qs[i], ok=k===q.a;
+    if(ok) right++; else wrong.push(q);
+    $app.querySelectorAll('.opt').forEach(b=>{const kk=+b.dataset.k;if(kk===q.a)b.classList.add('ok');else if(kk===k)b.classList.add('bad');b.disabled=true});
+    document.getElementById('exp').innerHTML=`<div class="exp"><span class="tag ${ok?'ok':'bad'}">${ok?'Richtig ✓':'Falsch ✗'}</span>${esc(q.e)}</div>`;
+    document.getElementById('qnav').hidden=false;
+    document.getElementById('nx').onclick=()=>{i++; i<qs.length?draw():result()};
+    document.getElementById('ex').onclick=home;
+    document.querySelector('.count').textContent=`${i+1} / ${qs.length} · ✓ ${right}`;
+  }
+  function result(){
+    if(sec!=='all'&&!pool){const k=l.id+'|'+sec;if(best[k]==null||right>best[k]){best[k]=right;store.set('lk_best',best)}}
+    const pct=Math.round(right/qs.length*100);
+    const msg=pct===100?'Super! Alles richtig beantwortet.':pct>=70?'Gut! Wiederhole noch ein paar Fragen.':'Lies die Karten dieses Abschnitts am besten noch einmal.';
+    $app.innerHTML=`
+     <div class="bar"><button class="iconbtn" id="back" aria-label="Zurück">←</button><h1>Quizergebnis</h1></div>
+     <div class="stage"><div class="score"><div class="big">${right}/${qs.length}</div><div>${msg}</div>
+       <div class="actions">${wrong.length?`<button class="btn pri" id="retryWrong">${wrong.length} falsche Fragen wiederholen</button>`:''}<button class="btn sec" id="again">Neu starten</button>${sec!=='all'?`<button class="btn sec" id="read">Karten dieses Abschnitts lesen</button>`:''}<button class="btn sec" id="home">Startseite</button></div></div></div>`;
+    document.getElementById('back').onclick=home;
+    document.getElementById('home').onclick=home;
+    document.getElementById('again').onclick=()=>quiz(sec);
+    const rw=document.getElementById('retryWrong'); if(rw){const orig=wrong.map(w=>{const src=L().sections.flatMap(s=>s.quiz).find(x=>x.q===w.q);return src});rw.onclick=()=>quiz(sec,orig)}
+    const rd=document.getElementById('read'); if(rd) rd.onclick=()=>{st.tab='cards';cards(sec)};
+  }
+  draw();
+}
+home();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+</body>
+</html>
