@@ -154,6 +154,7 @@ function home(){
   const chips=subjects.length>1?`<div class="subj" role="tablist" aria-label="Fach">${subjects.map(f=>`<button class="chip" data-fach="${esc(f)}" aria-selected="${f===l.fach}">${esc(f)}</button>`).join('')}</div>`:'';
   const picker=inFach.length>1?`<select id="lessonSel" aria-label="Lektion">${inFach.map(x=>`<option value="${x.id}" ${x.id===l.id?'selected':''}>${esc(x.titel)}</option>`).join('')}</select>`:'';
   const rows=l.sections.map((s,i)=>{
+    if(st.tab==='quiz'&&!s.quiz.length) return '';
     if(st.tab==='cards'){
       const k=l.id+'|'+i, sn=Math.min(seen[k]||0,s.cards.length), pct=Math.round(sn/s.cards.length*100);
       return `<button class="row" data-sec="${i}"><span class="num">${esc(s.nr)}</span><span class="t">${esc(s.titel)}<div class="mini"><i style="width:${pct}%"></i></div></span><span class="meta">${fa(s.cards.length)} Karten</span></button>`;
@@ -164,7 +165,7 @@ function home(){
   }).join('');
   const all=st.tab==='cards'
     ?`<button class="row all" data-sec="all"><span class="num">∑</span><span class="t">Alle Karten</span><span class="meta">${fa(total)} Karten</span></button>`
-    :`<button class="row all" data-sec="all"><span class="num">∑</span><span class="t">Gesamttest (gemischt)</span><span class="meta">${fa(Math.min(20,qtotal))} Fragen</span></button>`;
+    :`<button class="row all" data-sec="all"><span class="num">∑</span><span class="t">Gesamttest (gemischt)</span><span class="meta">${fa(Math.min(50,qtotal))} Fragen</span></button>`;
   $app.innerHTML=`
    ${chips}<div class="hero"><span class="sub">${esc(l.fach)} · Lernkarten zur Prüfungsvorbereitung</span><div class="lt">${esc(l.titel)}</div>${picker}</div>
    <div class="tabs" role="tablist"><button role="tab" id="tabCards" aria-selected="${st.tab==='cards'}">Karten</button><button role="tab" id="tabQuiz" aria-selected="${st.tab==='quiz'}">Quiz</button></div>
@@ -225,7 +226,7 @@ function quiz(sec,pool){
   const l=L();
   let qs;
   if(pool) qs=shuffle(pool);
-  else if(sec==='all') qs=shuffle(l.sections.flatMap(s=>s.quiz)).slice(0,20);
+  else if(sec==='all') qs=shuffle(l.sections.flatMap(s=>s.quiz)).slice(0,50);
   else qs=shuffle(l.sections[+sec].quiz);
   qs=qs.map(q=>{const order=shuffle(q.o.map((t,k)=>k));return {...q,o:order.map(k=>q.o[k]),a:order.indexOf(q.a)}});
   let i=0, right=0, wrong=[], answered=false;
