@@ -60,6 +60,9 @@ select{font:inherit;font-size:.95rem;background:var(--card);color:var(--ink);bor
 .hero{direction:ltr;display:grid;gap:4px;padding-block:8px 14px}
 .hero .sub{color:var(--muted);font-size:.9rem}
 .hero .lt{font-family:var(--f-card);direction:ltr;text-align:left;font-size:1.5rem;font-weight:700;line-height:1.25;text-wrap:balance}
+.subj{display:flex;gap:8px;flex-wrap:wrap;padding-block:6px 2px}
+.chip{padding:8px 16px;border-radius:999px;background:var(--card);box-shadow:var(--shadow);font-weight:600;color:var(--muted)}
+.chip[aria-selected="true"]{background:var(--ink);color:var(--card)}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--card);padding:5px;border-radius:14px;box-shadow:var(--shadow);direction:ltr}
 .tabs button{padding:10px;border-radius:10px;font-weight:600;color:var(--muted)}
 .tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
@@ -146,7 +149,10 @@ function home(){
   const l=L();
   const total=l.sections.reduce((n,s)=>n+s.cards.length,0);
   const qtotal=l.sections.reduce((n,s)=>n+s.quiz.length,0);
-  const picker=LESSONS.length>1?`<select id="lessonSel" aria-label="Lektion">${LESSONS.map(x=>`<option value="${x.id}" ${x.id===l.id?'selected':''}>${esc(x.fach)} · ${esc(x.titel)}</option>`).join('')}</select>`:'';
+  const subjects=[...new Set(LESSONS.map(x=>x.fach))];
+  const inFach=LESSONS.filter(x=>x.fach===l.fach);
+  const chips=subjects.length>1?`<div class="subj" role="tablist" aria-label="Fach">${subjects.map(f=>`<button class="chip" data-fach="${esc(f)}" aria-selected="${f===l.fach}">${esc(f)}</button>`).join('')}</div>`:'';
+  const picker=inFach.length>1?`<select id="lessonSel" aria-label="Lektion">${inFach.map(x=>`<option value="${x.id}" ${x.id===l.id?'selected':''}>${esc(x.titel)}</option>`).join('')}</select>`:'';
   const rows=l.sections.map((s,i)=>{
     if(st.tab==='cards'){
       const k=l.id+'|'+i, sn=Math.min(seen[k]||0,s.cards.length), pct=Math.round(sn/s.cards.length*100);
@@ -160,12 +166,14 @@ function home(){
     ?`<button class="row all" data-sec="all"><span class="num">∑</span><span class="t">Alle Karten</span><span class="meta">${fa(total)} Karten</span></button>`
     :`<button class="row all" data-sec="all"><span class="num">∑</span><span class="t">Gesamttest (gemischt)</span><span class="meta">${fa(Math.min(20,qtotal))} Fragen</span></button>`;
   $app.innerHTML=`
-   <div class="hero"><span class="sub">${esc(l.fach)} · Lernkarten zur Prüfungsvorbereitung</span><div class="lt">${esc(l.titel)}</div>${picker}</div>
+   ${chips}<div class="hero"><span class="sub">${esc(l.fach)} · Lernkarten zur Prüfungsvorbereitung</span><div class="lt">${esc(l.titel)}</div>${picker}</div>
    <div class="tabs" role="tablist"><button role="tab" id="tabCards" aria-selected="${st.tab==='cards'}">Karten</button><button role="tab" id="tabQuiz" aria-selected="${st.tab==='quiz'}">Quiz</button></div>
    <div class="list">${all}${rows}</div>
    <div class="foot">Quelle: ${esc(l.quelle)}<br><button id="reset">Fortschritt zurücksetzen</button></div>`;
   document.getElementById('tabCards').onclick=()=>{st.tab='cards';home()};
   document.getElementById('tabQuiz').onclick=()=>{st.tab='quiz';home()};
+  $app.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{const f=c.dataset.fach;const last=store.get('lk_last_'+f,null);const x=LESSONS.find(y=>y.id===last)||LESSONS.find(y=>y.fach===f);st.lesson=x.id;store.set('lk_lesson',st.lesson);home()});
+  store.set('lk_last_'+l.fach,l.id);
   const sel=document.getElementById('lessonSel'); if(sel) sel.onchange=e=>{st.lesson=e.target.value;store.set('lk_lesson',st.lesson);home()};
   document.getElementById('reset').onclick=e=>{if(e.target.dataset.c){seen={};best={};store.set('lk_seen',seen);store.set('lk_best',best);home()}else{e.target.dataset.c=1;e.target.textContent='Sicher? Nochmal tippen'}};
   $app.querySelectorAll('.row').forEach(b=>b.onclick=()=>{const v=b.dataset.sec;st.tab==='cards'?cards(v):quiz(v)});
